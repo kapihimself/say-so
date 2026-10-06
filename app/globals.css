@@ -60,6 +60,17 @@
   --ring: #2a4bb0;
 }
 
+/* Hide every scrollbar app-wide — screens are sized to the viewport. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground;
@@ -72,7 +83,8 @@
     height: 100%;
   }
   body {
-    overflow-x: hidden;
+    /* Lock the page to the viewport; each screen scrolls internally. */
+    overflow: hidden;
     overscroll-behavior: none;
   }
 }

@@ -18,7 +18,7 @@ export default function SplashPage() {
   const { nativeLang } = useAppStore()
   const t = getLocale(nativeLang).ui
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative h-dvh overflow-hidden">
       {/* pastel blobs */}
       <div className="pointer-events-none absolute -left-20 -top-20 h-80 w-80 rounded-full bg-[var(--color-bubblegum-soft)] blur-2xl" />
       <div className="pointer-events-none absolute -right-24 top-32 h-96 w-96 rounded-full bg-[var(--color-sky-soft)] blur-2xl" />
@@ -35,7 +35,7 @@ export default function SplashPage() {
         </div>
       ))}
 
-      <section className="relative z-10 mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-6 text-center">
+      <section className="relative z-10 mx-auto flex h-full max-w-3xl flex-col items-center justify-center px-6 text-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

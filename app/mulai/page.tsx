@@ -107,10 +107,10 @@ export default function MulaiPage() {
           {/* ---- ALPHABET PHONICS ---- */}
           {step === 'alphabet' && (
             <motion.div key="alphabet" initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -30, opacity: 0 }} className="flex min-h-0 flex-1 flex-col">
-              <h2 className="text-2xl font-black sm:text-3xl">{t.tutPhonicsTitle}</h2>
-              <p className="mt-1 text-sm font-semibold text-[var(--color-muted-warm)]">{t.tutPhonicsHint}</p>
+              <h2 className="shrink-0 text-xl font-black sm:text-2xl">{t.tutPhonicsTitle}</h2>
+              <p className="mt-1 shrink-0 text-xs font-semibold text-[var(--color-muted-warm)]">{t.tutPhonicsHint}</p>
 
-              <div className="mt-4 grid grid-cols-6 gap-2 overflow-y-auto pr-1 sm:grid-cols-8">
+              <div className="mt-3 grid min-h-0 flex-1 auto-rows-fr grid-cols-6 gap-1.5 sm:grid-cols-8">
                 {ALPHABET.map((l) => (
                   <button
                     key={l.letter}
@@ -120,7 +120,7 @@ export default function MulaiPage() {
                     }}
                     aria-label={`${l.letter} ${l.ipa}`}
                     className={cn(
-                      'aspect-square rounded-xl text-lg font-black doodle-outline transition-all',
+                      'min-h-0 rounded-lg text-base font-black doodle-outline transition-all',
                       selected === l.letter ? 'translate-y-px bg-[var(--color-grape)] text-white shadow-[2px_3px_0_0_var(--color-ink)]' : 'bg-white doodle-shadow-sm hover:-translate-y-0.5'
                     )}
                   >
@@ -130,7 +130,7 @@ export default function MulaiPage() {
               </div>
 
               {selected && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-white p-4 doodle-outline doodle-shadow-sm">
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-2xl bg-white p-3 doodle-outline doodle-shadow-sm">
                   {(() => {
                     const l = ALPHABET.find((x) => x.letter === selected)!
                     return (
@@ -156,11 +156,11 @@ export default function MulaiPage() {
                 </motion.div>
               )}
 
-              <div className="mt-auto flex gap-3 pt-4">
-                <button onClick={() => setStep('test')} className="doodle-btn inline-flex flex-1 items-center justify-center gap-2 bg-[var(--color-grape)] px-6 py-3.5 text-lg text-white">
-                  {t.obNext} <ArrowRight className="size-5" aria-hidden />
+              <div className="mt-3 flex shrink-0 gap-3">
+                <button onClick={() => setStep('test')} className="doodle-btn inline-flex flex-1 items-center justify-center gap-2 bg-[var(--color-grape)] px-6 py-3 text-base text-white">
+                  {t.obNext} <ArrowRight className="size-4" aria-hidden />
                 </button>
-                <button onClick={() => router.push('/room')} className="doodle-btn inline-flex items-center gap-1.5 bg-white px-4 py-3.5 text-sm font-extrabold">
+                <button onClick={() => router.push('/room')} className="doodle-btn inline-flex items-center gap-1.5 bg-white px-4 py-3 text-sm font-extrabold">
                   <SkipForward className="size-4" aria-hidden /> {t.tutSkip}
                 </button>
               </div>
