@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Nunito', var(--font-geist-sans), sans-serif;
+  --font-heading: 'Nunito', sans-serif;
+
+  /* ---- BISING (Bisa English) — palette extracted from the inspiration set:
+     cream/ivory paper base + cobalt blue + vermillion/red-orange accents ---- */
+  --color-ink: #201d33;           /* dark indigo outline */
+  --color-cloud: #f7f2e6;         /* cream paper page bg */
+
+  --color-grape: #2a4bb0;         /* signature cobalt blue */
+  --color-grape-soft: #d8dff3;
+
+  --color-bubblegum: #c0431f;     /* vermillion / red-orange accent */
+  --color-bubblegum-soft: #f4d9cd;
+
+  --color-mint: #3f8f6d;          /* muted sage green (positive state) */
+  --color-mint-soft: #d5e9dd;
+
+  --color-sky: #5b79c9;           /* light cobalt */
+  --color-sky-soft: #dde4f6;
+
+  --color-lemon: #cf9f3a;         /* ochre / gold */
+  --color-lemon-soft: #f1e3c1;
+
+  --color-peach: #cf6a3a;         /* terracotta */
+  --color-peach-soft: #f4dccb;
+
+  --color-warm-text: #2b2620;
+  --color-muted-warm: #6f6754;
+
+  --radius-doodle: 1.75rem;
+}
+
+:root {
+  --background: #f7f2e6;
+  --foreground: #2b2620;
+  --radius: 1rem;
+
+  --card: #fffdf7;
+  --card-foreground: #2b2620;
+  --popover: #fffdf7;
+  --popover-foreground: #2b2620;
+  --primary: #2a4bb0;
+  --primary-foreground: #fffdf7;
+  --secondary: #efe7d4;
+  --secondary-foreground: #2b2620;
+  --muted: #f0ead9;
+  --muted-foreground: #6f6754;
+  --accent: #f4d9cd;
+  --accent-foreground: #2b2620;
+  --destructive: #c0431f;
+  --border: #201d33;
+  --input: #e9e0cc;
+  --ring: #2a4bb0;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+@layer components {
+  /* Thick ink outline + hard offset shadow — the Doodles signature */
+  .doodle-card {
+    background: #fff;
+    border: 3px solid var(--color-ink);
+    border-radius: var(--radius-doodle);
+    box-shadow: 5px 6px 0 0 var(--color-ink);
+  }
+  .doodle-outline {
+    border: 3px solid var(--color-ink);
+  }
+  .doodle-shadow {
+    box-shadow: 5px 6px 0 0 var(--color-ink);
+  }
+  .doodle-shadow-sm {
+    box-shadow: 3px 4px 0 0 var(--color-ink);
+  }
+
+  /* Pressable chunky button */
+  .doodle-btn {
+    border: 3px solid var(--color-ink);
+    border-radius: 999px;
+    box-shadow: 4px 5px 0 0 var(--color-ink);
+    font-weight: 800;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .doodle-btn:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 3px 4px 0 0 var(--color-ink);
+  }
+  .doodle-btn:active {
+    transform: translate(4px, 5px);
+    box-shadow: 0 0 0 0 var(--color-ink);
+  }
+}
+
+/* Floaty idle animation for characters / blobs */
+@keyframes doodle-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+.animate-float {
+  animation: doodle-float 4s ease-in-out infinite;
+}
+
+@keyframes doodle-pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop {
+  animation: doodle-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ---- Accessibility ---- */
+
+/* Visible keyboard focus everywhere (unlayered so it beats `outline-none`). */
+:where(a, button, input, textarea, select, [role='button'], [tabindex]):focus-visible {
+  outline: 3px solid var(--color-grape);
+  outline-offset: 2px;
+  border-radius: 0.75rem;
+}
+
+/* Respect reduced-motion preferences across the whole app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-float,
+  .animate-pop {
+    animation: none !important;
+  }
+}
