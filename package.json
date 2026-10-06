@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "gen:lexicon": "node scripts/gen-lexicon.mjs"
+    "gen:lexicon": "node scripts/gen-lexicon.mjs",
+    "gen:tts": "node scripts/gen-tts.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

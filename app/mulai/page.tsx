@@ -6,7 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/lib/store/appStore'
 import { getLocale, fmt } from '@/lib/i18n'
 import { ALPHABET } from '@/lib/phonics/alphabet'
+import { ARTIC } from '@/lib/phonics/articulation'
+import { MouthDiagram } from '@/components/phonics/MouthDiagram'
 import { speak } from '@/lib/tts'
+import { playNarration, playLetter } from '@/lib/audio/clips'
 import { useVoice } from '@/lib/hooks/useVoice'
 import { scorePronunciation, wordToPhonemes, phonemesToString } from '@/lib/phonetics/g2p'
 import {
@@ -44,8 +47,14 @@ export default function MulaiPage() {
   useEffect(() => {
     if (welcomed.current) return
     welcomed.current = true
-    speak(welcomeMsg, locale.speechTag, 0.95)
-  }, [welcomeMsg, locale.speechTag])
+    void playNarration(locale.code, 'welcome_a1', welcomeMsg)
+  }, [welcomeMsg, locale.code])
+
+  useEffect(() => {
+    if (step === 'alphabet') void playNarration(locale.code, 'phonics_hint', t.tutPhonicsHint)
+    if (step === 'test') void playNarration(locale.code, 'test_hint', t.tutTestHint)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   const word = TEST_WORDS[idx]
   const wordIpa = phonemesToString(wordToPhonemes(word))
@@ -54,7 +63,9 @@ export default function MulaiPage() {
     if (recording) {
       const text = await stop()
       setHeard(text)
-      setScore(text ? scorePronunciation(word, text).score : 0)
+      const s = text ? scorePronunciation(word, text).score : 0
+      setScore(s)
+      void playNarration(locale.code, s >= 70 ? 'correct' : 'almost', s >= 70 ? t.tutCorrect : t.tutAlmost)
     } else {
       setScore(null)
       setHeard('')
@@ -65,6 +76,7 @@ export default function MulaiPage() {
   function nextWord() {
     if (idx >= TEST_WORDS.length - 1) {
       setStep('done')
+      void playNarration(locale.code, 'encourage', t.tutEncourage)
       return
     }
     setIdx(idx + 1)
@@ -90,7 +102,7 @@ export default function MulaiPage() {
               </h2>
               <p className="mt-4 max-w-lg text-lg font-semibold text-[var(--color-warm-text)]">{welcomeMsg}</p>
               <button
-                onClick={() => speak(welcomeMsg, locale.speechTag, 0.95)}
+                onClick={() => void playNarration(locale.code, 'welcome_a1', welcomeMsg)}
                 className="doodle-btn mt-6 inline-flex items-center gap-2 bg-white px-5 py-2.5 font-extrabold"
               >
                 <Volume2 className="size-4" aria-hidden /> {t.narrateLabel}
@@ -116,7 +128,7 @@ export default function MulaiPage() {
                     key={l.letter}
                     onClick={() => {
                       setSelected(l.letter)
-                      speak(l.letter, 'en-US', 0.85)
+                      void playLetter(l.letter)
                     }}
                     aria-label={`${l.letter} ${l.ipa}`}
                     className={cn(
@@ -130,25 +142,31 @@ export default function MulaiPage() {
               </div>
 
               {selected && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex shrink-0 items-center justify-between gap-3 rounded-2xl bg-white p-3 doodle-outline doodle-shadow-sm">
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex shrink-0 items-center gap-3 rounded-2xl bg-white p-3 doodle-outline doodle-shadow-sm">
                   {(() => {
                     const l = ALPHABET.find((x) => x.letter === selected)!
                     return (
                       <>
-                        <div>
-                          <div className="text-3xl font-black">
-                            {l.letter} <span className="text-lg text-[var(--color-grape)]">{l.ipa}</span>
+                        <div className="shrink-0 rounded-xl bg-[var(--color-cloud)] p-1">
+                          <MouthDiagram artic={l.artic} voiced={l.voiced} className="h-[78px] w-[92px]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xl font-black">
+                            {l.letter} <span className="text-sm text-[var(--color-grape)]">{l.phoneme}</span>
                           </div>
-                          <p className="text-sm font-bold text-[var(--color-muted-warm)]">
-                            {l.example} {phonemesToString(wordToPhonemes(l.example))}
+                          <p className="text-[11px] font-bold text-[var(--color-muted-warm)]">
+                            {l.example} · {phonemesToString(wordToPhonemes(l.example))}
+                          </p>
+                          <p className="mt-0.5 text-[11px] font-semibold text-[var(--color-warm-text)]">
+                            {ARTIC[l.artic].desc[nativeLang]}
                           </p>
                         </div>
                         <button
                           onClick={() => speak(l.example, 'en-US', 0.85)}
                           aria-label={`${t.tutSayWord} ${l.example}`}
-                          className="doodle-btn grid size-11 shrink-0 place-items-center bg-white"
+                          className="doodle-btn grid size-10 shrink-0 place-items-center bg-white"
                         >
-                          <Volume2 className="size-5" aria-hidden />
+                          <Volume2 className="size-4" aria-hidden />
                         </button>
                       </>
                     )

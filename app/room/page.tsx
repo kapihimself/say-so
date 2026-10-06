@@ -14,7 +14,7 @@ import { CURRICULUM } from '@/lib/curriculum'
 import { useVoice } from '@/lib/hooks/useVoice'
 import { Mic, Send, Volume2, VolumeX, ArrowLeft, Loader2, Square, Headphones, ClipboardList, AudioLines } from 'lucide-react'
 import { HudPanel } from '@/components/room/HudPanel'
-import { speak as speakTts } from '@/lib/tts'
+import { playNarration } from '@/lib/audio/clips'
 import { cn } from '@/lib/utils'
 import { PhoneticBoard } from '@/components/room/PhoneticBoard'
 
@@ -298,7 +298,7 @@ export default function RoomPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => speakTts(t.narRoom, locale.speechTag)}
+            onClick={() => void playNarration(locale.code, 'room_how', t.narRoom)}
             className="doodle-btn inline-flex items-center bg-white px-3 py-2"
             title={`${t.narrateLabel}`}
             aria-label={`${t.narrateLabel}: ${t.narRoom}`}

@@ -21,12 +21,13 @@ export default function OnboardingPage() {
 
   const locale = getLocale(nativeLang)
   const t = locale.ui
-  const { enabled: narrationOn, setEnabled: setNarration, say, supported: ttsOk } = useNarration(locale.speechTag)
+  const { enabled: narrationOn, setEnabled: setNarration, say, supported: ttsOk } = useNarration(locale.code, locale.speechTag)
 
+  const NARRATION_KEYS = ['ob_lang', 'ob_name', 'ob_level', 'ob_teacher']
   const NARRATION = [t.narStepLang, t.narStepName, t.narStepLevel, t.narStepTeacher]
 
   useEffect(() => {
-    say(NARRATION[step])
+    say(NARRATION_KEYS[step], NARRATION[step])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, narrationOn])
 
@@ -76,7 +77,7 @@ export default function OnboardingPage() {
         )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div key="s0" initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -30, opacity: 0 }} className="flex min-h-0 flex-1 flex-col">
