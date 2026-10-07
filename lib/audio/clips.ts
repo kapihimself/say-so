@@ -51,6 +51,30 @@ export async function playLetter(letter: string): Promise<void> {
   else speak(letter, 'en-US', 0.85)
 }
 
+/** Natural voice for text that can't be pre-recorded (e.g. a learner's name). */
+export async function speakDynamic(
+  text: string,
+  voice: string,
+  fallbackLangCode: string,
+  instructions?: string
+): Promise<void> {
+  if (typeof window === 'undefined' || !text) return
+  try {
+    const r = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice, instructions }),
+    })
+    if (!r.ok) throw new Error('tts')
+    const blob = await r.blob()
+    const url = URL.createObjectURL(blob)
+    playUrl(url, () => speak(text, fallbackLangCode, 0.98))
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+  } catch {
+    speak(text, fallbackLangCode, 0.98)
+  }
+}
+
 export function stopAudio() {
   try {
     current?.pause()

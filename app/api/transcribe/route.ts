@@ -8,15 +8,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No audio file provided' }, { status: 400 })
   }
 
+  // Preserve the real container: OpenAI detects format by file extension.
+  const type = audioFile.type || ''
+  const ext = type.includes('mp3') || type.includes('mpeg')
+    ? 'mp3'
+    : type.includes('wav')
+      ? 'wav'
+      : type.includes('ogg')
+        ? 'ogg'
+        : type.includes('mp4') || type.includes('m4a')
+          ? 'm4a'
+          : 'webm'
+
   const upstreamForm = new FormData()
-  upstreamForm.append('file', audioFile, 'audio.webm')
-  upstreamForm.append('model', process.env.AI_WHISPER_MODEL ?? process.env.OPENAI_WHISPER_MODEL ?? 'whisper-1')
+  upstreamForm.append('file', audioFile, `audio.${ext}`)
+  upstreamForm.append('model', process.env.STT_MODEL ?? process.env.AI_WHISPER_MODEL ?? 'whisper-1')
   upstreamForm.append('response_format', 'json')
   // Bias the recognizer toward English — this is an English-learning app
   upstreamForm.append('language', 'en')
 
-  const baseUrl = (process.env.AI_BASE_URL ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1').replace(/\/$/, '')
-  const apiKey = process.env.AI_API_KEY ?? process.env.OPENAI_API_KEY ?? ''
+  const baseUrl = (process.env.STT_BASE_URL ?? process.env.AI_BASE_URL ?? 'https://api.openai.com/v1').replace(/\/$/, '')
+  const apiKey = process.env.STT_API_KEY ?? process.env.AI_API_KEY ?? process.env.OPENAI_API_KEY ?? ''
 
   const response = await fetch(`${baseUrl}/audio/transcriptions`, {
     method: 'POST',

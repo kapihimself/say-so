@@ -3,13 +3,12 @@
 import { useCallback, useRef, useState } from 'react'
 import { talkLevel, resetTalkLevel } from '@/lib/audio/talkLevel'
 
-// Minimal typings for the Web Speech API (not in lib.dom for all TS versions).
+// Minimal typings for the Web Speech API.
 type SRAlternative = { transcript: string }
 type SRResult = { length: number; [index: number]: SRAlternative }
 type SRResultList = { length: number; [index: number]: SRResult }
 type SRResultEvent = { resultIndex: number; results: SRResultList }
 type SRErrorEvent = { error?: string }
-
 type SpeechRecognitionLike = {
   lang: string
   continuous: boolean
@@ -17,7 +16,6 @@ type SpeechRecognitionLike = {
   maxAlternatives: number
   start: () => void
   stop: () => void
-  abort: () => void
   onresult: ((e: SRResultEvent) => void) | null
   onerror: ((e: SRErrorEvent) => void) | null
   onend: (() => void) | null
@@ -33,10 +31,10 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
 }
 
 /**
- * Speech-to-text. Prefers the browser Web Speech API (free, no API key, live);
- * falls back to MediaRecorder → /api/transcribe (Whisper) when unavailable.
- * Also streams live mic amplitude into the shared talkLevel signal for the
- * animated mouth / level meter.
+ * Speech-to-text. Always records the mic (MediaRecorder), so we can fall back to
+ * the server (Whisper / gpt-4o-mini-transcribe) whenever the browser's Web
+ * Speech API is unavailable or returns nothing — this is what makes the mic
+ * work across browsers. Live amplitude still feeds the animated mouth.
  */
 export function useVoice(lang = 'en-US') {
   const [recording, setRecording] = useState(false)
@@ -44,9 +42,8 @@ export function useVoice(lang = 'en-US') {
   const [error, setError] = useState<string | null>(null)
 
   const recRef = useRef<SpeechRecognitionLike | null>(null)
-  const finalRef = useRef('')
-  const resolveRef = useRef<((t: string) => void) | null>(null)
-  const modeRef = useRef<'sr' | 'whisper'>('sr')
+  const srTextRef = useRef('')
+  const srResolveRef = useRef<((t: string) => void) | null>(null)
 
   const mediaRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -82,7 +79,6 @@ export function useVoice(lang = 'en-US') {
 
       const data = new Uint8Array(analyser.frequencyBinCount)
       const bandCount = talkLevel.bands.length
-
       const tick = () => {
         analyser.getByteFrequencyData(data)
         let sum = 0
@@ -90,7 +86,6 @@ export function useVoice(lang = 'en-US') {
         const rms = sum / data.length / 255
         talkLevel.value = talkLevel.value * 0.6 + Math.min(1, rms * 3.2) * 0.4
         talkLevel.active = talkLevel.value > 0.04
-
         const per = Math.floor(data.length / bandCount)
         for (let b = 0; b < bandCount; b++) {
           let s = 0
@@ -101,17 +96,31 @@ export function useVoice(lang = 'en-US') {
       }
       rafRef.current = requestAnimationFrame(tick)
     } catch {
-      // amplitude is a nice-to-have
+      /* amplitude optional */
     }
   }, [])
 
   const start = useCallback(async () => {
     setError(null)
-    finalRef.current = ''
+    srTextRef.current = ''
+    let stream: MediaStream
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch {
+      setError('mic-denied')
+      throw new Error('microphone unavailable')
+    }
+    streamRef.current = stream
+
+    const mr = new MediaRecorder(stream)
+    chunksRef.current = []
+    mr.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data)
+    mr.start()
+    mediaRef.current = mr
+    startAnalyser(stream)
 
     const SR = getSpeechRecognition()
     if (SR) {
-      modeRef.current = 'sr'
       const rec = new SR()
       rec.lang = lang
       rec.continuous = false
@@ -123,76 +132,74 @@ export function useVoice(lang = 'en-US') {
           const alt = e.results[i][0]
           if (alt) s += alt.transcript
         }
-        finalRef.current = s
+        srTextRef.current = s
       }
-      rec.onerror = (e) => setError(e?.error ?? 'sr-error')
+      rec.onerror = () => {}
       rec.onend = () => {
-        setRecording(false)
-        setTranscribing(false)
-        const r = resolveRef.current
-        resolveRef.current = null
-        r?.(finalRef.current.trim())
+        const r = srResolveRef.current
+        srResolveRef.current = null
+        r?.(srTextRef.current.trim())
       }
       recRef.current = rec
       try {
         rec.start()
       } catch {
-        /* already started */
+        /* SR may fail if the mic is busy — server fallback covers it */
       }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-        streamRef.current = stream
-        startAnalyser(stream)
-      } catch {
-        /* mic level optional */
-      }
-      setRecording(true)
-      return
     }
 
-    modeRef.current = 'whisper'
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    streamRef.current = stream
-    const mr = new MediaRecorder(stream)
-    chunksRef.current = []
-    mr.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data)
-    mr.start()
-    mediaRef.current = mr
-    startAnalyser(stream)
     setRecording(true)
   }, [lang, startAnalyser])
 
   const stop = useCallback(async (): Promise<string> => {
-    if (modeRef.current === 'sr' && recRef.current) {
-      setTranscribing(true)
-      stopAnalyser()
-      return new Promise<string>((resolve) => {
-        resolveRef.current = resolve
-        try {
-          recRef.current?.stop()
-        } catch {
-          resolve(finalRef.current.trim())
-        }
-        setTimeout(() => {
-          releaseStream()
-        }, 200)
-      })
-    }
-
-    const mr = mediaRef.current
-    if (!mr) return ''
-    setRecording(false)
     setTranscribing(true)
     stopAnalyser()
 
-    const blob: Blob = await new Promise((resolve) => {
-      mr.onstop = () => resolve(new Blob(chunksRef.current, { type: 'audio/webm' }))
-      mr.stop()
-    })
+    // 1) fast path: browser speech recognition
+    let srText = ''
+    if (recRef.current) {
+      const rec = recRef.current
+      recRef.current = null
+      srText = await new Promise<string>((resolve) => {
+        srResolveRef.current = resolve
+        try {
+          rec.stop()
+        } catch {
+          resolve(srTextRef.current.trim())
+        }
+      })
+    }
+
+    // 2) stop the recorder
+    const mr = mediaRef.current
+    let blob: Blob | null = null
+    if (mr && mr.state !== 'inactive') {
+      blob = await new Promise<Blob>((resolve) => {
+        mr.onstop = () => resolve(new Blob(chunksRef.current, { type: 'audio/webm' }))
+        try {
+          mr.stop()
+        } catch {
+          resolve(new Blob())
+        }
+      })
+    }
+    mediaRef.current = null
     releaseStream()
+    setRecording(false)
+
+    if (srText) {
+      setTranscribing(false)
+      return srText
+    }
+
+    // 3) fallback: server transcription
+    if (!blob || blob.size === 0) {
+      setTranscribing(false)
+      return ''
+    }
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 25000)
+    const timeout = setTimeout(() => controller.abort(), 30000)
     try {
       const form = new FormData()
       form.append('audio', blob, 'audio.webm')

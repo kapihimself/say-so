@@ -29,65 +29,58 @@ const NARRATION = {
     voice: 'coral',
     clips: {
       ob_lang:
-        'Selamat datang di Bising! Pilih bahasa ibumu dulu, biar gurunya ngerti kesalahan khas yang kamu alami. Tekan salah satu pilihan, lalu lanjut.',
-      ob_name: 'Sekarang tulis namamu. Nanti gurunya manggil kamu pakai nama ini.',
+        'Halo! Sebelum mulai, pilih bahasa ibumu dulu ya. Biar aku ngerti kesalahan khas yang kamu alami, dan bisa njelasin pakai bahasamu.',
+      ob_name: 'Oke, siapa nama kamu? Aku mau manggil kamu pakai nama itu.',
       ob_level:
-        'Pilih levelmu. Kalau bingung, tekan tombol tes penempatan — cuma dua belas soal singkat, levelmu nanti terisi otomatis.',
-      ob_teacher: 'Terakhir, pilih cara gurunya ngomong. Mode campur paling enak buat memulai.',
+        'Kamu udah tau belum level English kamu? Kalau belum, ada tes penempatan di tombol bawah. Pilih aja yang paling dekat.',
+      ob_teacher: 'Terakhir, pilih cara aku ngomong. Mode campur paling enak buat pemula.',
       room_how:
-        'Selamat datang di kelas! Tekan tombol mic buat ngomong, atau ketik pesanmu. Guru bakal jawab sambil membetulkan pelan-pelan.',
-      welcome_a1:
-        'Selamat datang di Bising! Ini kelas English level A satu. Kita belajar phonics dulu ya, gimana cara menyebutkan bunyi huruf dalam bahasa Inggris.',
-      phonics_hint: 'Ketuk huruf untuk dengar bunyinya dalam bahasa Inggris.',
-      test_hint: 'Tekan mic, lalu ucapkan kata ini dengan lantang.',
-      correct: 'Mantap, benar!',
-      almost: 'Hampir! Coba lagi ya.',
-      encourage: 'Aku tahu ini berat, tapi AI percaya kamu bisa!',
+        'Selamat datang di kelas! Tekan tombol mic buat ngomong, atau ketik pesanmu. Aku bakal jawab sambil betulin pelan-pelan.',
+      phonics_hint: 'Ketuk huruf untuk dengar bunyinya, dan lihat posisi lidah dan mulutmu.',
+      test_hint: 'Sekarang gantian aku dengar kamu. Tekan mic, lalu ucapkan kata ini.',
+      correct: 'Mantap, benar sekali!',
+      almost: 'Hampir! Coba sekali lagi ya.',
+      encourage: 'Aku tau ini berat, tapi AI percaya kamu bisa. Pelan-pelan aja.',
     },
   },
   es: {
     voice: 'nova',
     clips: {
       ob_lang:
-        '¡Bienvenido a Bising! Elige tu lengua materna para que el profe entienda tus errores típicos. Toca una opción y sigue.',
-      ob_name: 'Ahora escribe tu nombre. El profe te llamará así.',
+        '¡Hola! Antes de empezar, elige tu lengua materna. Así entiendo tus errores típicos y te explico en tu idioma.',
+      ob_name: 'Bien, ¿cómo te llamas? Quiero llamarte por tu nombre.',
       ob_level:
-        'Elige tu nivel. Si no estás seguro, toca la prueba de nivel: son solo doce preguntas cortas y tu nivel se rellena solo.',
-      ob_teacher: 'Por último, elige cómo quieres que hable el profe. El modo mixto es el más fácil para empezar.',
+        '¿Ya sabes tu nivel de inglés? Si no, hay una prueba de nivel en el botón de abajo. Elige el más cercano.',
+      ob_teacher: 'Por último, elige cómo hablo. El modo mixto es el más fácil para empezar.',
       room_how:
-        '¡Bienvenido a clase! Pulsa el micro para hablar, o escribe tu mensaje. El profe responderá y te corregirá con calma.',
-      welcome_a1:
-        '¡Bienvenido a Bising! Esta es la clase de inglés nivel A uno. Empezamos con fonética: cómo se pronuncian las letras en inglés.',
-      phonics_hint: 'Toca una letra para oír su sonido en inglés.',
-      test_hint: 'Pulsa el micro y di esta palabra en voz alta.',
-      correct: '¡Genial, correcto!',
-      almost: '¡Casi! Inténtalo otra vez.',
-      encourage: 'Sé que es difícil, ¡pero la IA cree en ti!',
+        '¡Bienvenido a clase! Pulsa el micro para hablar, o escribe tu mensaje. Te responderé y corregiré con calma.',
+      phonics_hint: 'Toca una letra para oír su sonido y ver dónde van la lengua y los labios.',
+      test_hint: 'Ahora te escucho yo. Pulsa el micro y di esta palabra.',
+      correct: '¡Bravo, correcto!',
+      almost: '¡Casi! Inténtalo una vez más.',
+      encourage: 'Sé que es difícil, pero la IA cree en ti. Sin prisa.',
     },
   },
   pt: {
     voice: 'shimmer',
     clips: {
       ob_lang:
-        'Bem-vindo ao Bising! Escolha sua língua materna para o professor entender seus erros típicos. Toque numa opção e avance.',
-      ob_name: 'Agora escreva seu nome. O professor vai te chamar assim.',
+        'Olá! Antes de começar, escolha sua língua materna. Assim eu entendo seus erros típicos e explico no seu idioma.',
+      ob_name: 'Boa, como você se chama? Quero te chamar pelo seu nome.',
       ob_level:
-        'Escolha seu nível. Na dúvida, toque no teste de nivelamento: são só doze perguntas curtas e seu nível é preenchido sozinho.',
-      ob_teacher: 'Por último, escolha como o professor deve falar. O modo misto é o mais fácil para começar.',
+        'Você já sabe seu nível de inglês? Se não, tem um teste de nivelamento no botão de baixo. Escolha o mais próximo.',
+      ob_teacher: 'Por último, escolha como eu falo. O modo misto é o mais fácil para começar.',
       room_how:
-        'Bem-vindo à aula! Toque no microfone para falar, ou digite sua mensagem. O professor responde e corrige com calma.',
-      welcome_a1:
-        'Bem-vindo ao Bising! Esta é a aula de inglês nível A um. Vamos começar pela fonética: como se pronunciam as letras em inglês.',
-      phonics_hint: 'Toque numa letra para ouvir o som dela em inglês.',
-      test_hint: 'Toque no microfone e diga esta palavra em voz alta.',
+        'Bem-vindo à aula! Toque no microfone para falar, ou digite sua mensagem. Eu respondo e corrijo com calma.',
+      phonics_hint: 'Toque numa letra para ouvir o som dela e ver onde ficam a língua e os lábios.',
+      test_hint: 'Agora eu te escuto. Toque no microfone e diga esta palavra.',
       correct: 'Boa, acertou!',
-      almost: 'Quase! Tente de novo.',
-      encourage: 'Eu sei que é difícil, mas a IA acredita em você!',
+      almost: 'Quase! Tente mais uma vez.',
+      encourage: 'Eu sei que é difícil, mas a IA acredita em você. Sem pressa.',
     },
   },
 }
 
-// English letter names, spelled so TTS says them naturally.
 const LETTERS = {
   a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff', g: 'jee', h: 'aitch',
   i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en', o: 'oh', p: 'pee',

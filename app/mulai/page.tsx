@@ -9,7 +9,7 @@ import { ALPHABET } from '@/lib/phonics/alphabet'
 import { ARTIC } from '@/lib/phonics/articulation'
 import { MouthDiagram } from '@/components/phonics/MouthDiagram'
 import { speak } from '@/lib/tts'
-import { playNarration, playLetter } from '@/lib/audio/clips'
+import { playNarration, playLetter, speakDynamic } from '@/lib/audio/clips'
 import { useVoice } from '@/lib/hooks/useVoice'
 import { scorePronunciation, wordToPhonemes, phonemesToString } from '@/lib/phonetics/g2p'
 import {
@@ -43,12 +43,14 @@ export default function MulaiPage() {
 
   const welcomed = useRef(false)
   const welcomeMsg = fmt(t.tutWelcome, { name: name || 'Sobat', level: level ?? 'A1' })
+  const VOICE = ({ id: 'coral', es: 'nova', pt: 'shimmer' } as Record<string, string>)[nativeLang] ?? 'alloy'
 
   useEffect(() => {
     if (welcomed.current) return
     welcomed.current = true
-    void playNarration(locale.code, 'welcome_a1', welcomeMsg)
-  }, [welcomeMsg, locale.code])
+    // Personalized with the learner's name → generated on the fly (natural voice).
+    void speakDynamic(welcomeMsg, VOICE, locale.speechTag)
+  }, [welcomeMsg, VOICE, locale.speechTag])
 
   useEffect(() => {
     if (step === 'alphabet') void playNarration(locale.code, 'phonics_hint', t.tutPhonicsHint)
@@ -102,7 +104,7 @@ export default function MulaiPage() {
               </h2>
               <p className="mt-4 max-w-lg text-lg font-semibold text-[var(--color-warm-text)]">{welcomeMsg}</p>
               <button
-                onClick={() => void playNarration(locale.code, 'welcome_a1', welcomeMsg)}
+                onClick={() => void speakDynamic(welcomeMsg, VOICE, locale.speechTag)}
                 className="doodle-btn mt-6 inline-flex items-center gap-2 bg-white px-5 py-2.5 font-extrabold"
               >
                 <Volume2 className="size-4" aria-hidden /> {t.narrateLabel}
