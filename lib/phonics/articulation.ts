@@ -139,3 +139,41 @@ export const ARTIC: Record<Artic, ArticSpec> = {
     },
   },
 }
+
+export type ActivePart = 'lips' | 'teeth' | 'tongue' | 'palate' | 'throat' | 'jaw'
+
+/** Which articulator does the work for each sound (highlighted in the animator). */
+export const ARTIC_ACTIVE: Record<Artic, ActivePart> = {
+  'lips-closed': 'lips',
+  'lip-teeth': 'lips',
+  'tongue-teeth': 'tongue',
+  'tongue-ridge': 'tongue',
+  'tongue-back': 'tongue',
+  'tongue-back-round': 'lips',
+  'jaw-open': 'jaw',
+  'lips-spread': 'lips',
+  'lips-round': 'lips',
+  glottal: 'throat',
+}
+
+/** Screen position and motion of each articulator (in the 320×250 viewBox). */
+export const ARTIC_MARK: Record<ActivePart, { x: number; y: number; motion: 'up' | 'out' | 'throat' | 'open' }> = {
+  lips: { x: 74, y: 132, motion: 'out' },
+  teeth: { x: 92, y: 122, motion: 'out' },
+  tongue: { x: 138, y: 162, motion: 'up' },
+  palate: { x: 152, y: 92, motion: 'out' },
+  throat: { x: 196, y: 188, motion: 'throat' },
+  jaw: { x: 70, y: 176, motion: 'open' },
+}
+
+export const MOUTH_LABELS: Record<ActivePart | 'air' | 'voiced' | 'parts', { id: string; es: string; pt: string }> = {
+  lips: { id: 'Bibir', es: 'Labios', pt: 'Lábios' },
+  teeth: { id: 'Gigi', es: 'Dientes', pt: 'Dentes' },
+  tongue: { id: 'Lidah', es: 'Lengua', pt: 'Língua' },
+  palate: { id: 'Langit-langit', es: 'Paladar', pt: 'Palato' },
+  throat: { id: 'Tenggorokan', es: 'Garganta', pt: 'Garganta' },
+  jaw: { id: 'Rahang', es: 'Mandíbula', pt: 'Mandíbula' },
+  air: { id: 'Udara', es: 'Aire', pt: 'Ar' },
+  voiced: { id: 'Getaran pita suara', es: 'Vibración de cuerdas vocales', pt: 'Vibração das cordas vocais' },
+  parts: { id: 'Bagian yang bergerak', es: 'Parte que se mueve', pt: 'Parte que se move' },
+}

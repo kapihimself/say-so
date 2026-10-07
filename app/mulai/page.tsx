@@ -150,7 +150,7 @@ export default function MulaiPage() {
                     return (
                       <>
                         <div className="shrink-0 rounded-xl bg-[var(--color-cloud)] p-1">
-                          <MouthDiagram artic={l.artic} voiced={l.voiced} className="h-[78px] w-[92px]" />
+                          <MouthDiagram artic={l.artic} voiced={l.voiced} lang={nativeLang} className="h-[112px] w-[150px]" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="text-xl font-black">
