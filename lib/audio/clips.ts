@@ -51,6 +51,14 @@ export async function playLetter(letter: string): Promise<void> {
   else speak(letter, 'en-US', 0.85)
 }
 
+/** Play the phonics SOUND of a letter (e.g. "buh, ball"); fall back to TTS. */
+export async function playSound(letter: string): Promise<void> {
+  if (typeof window === 'undefined') return
+  const url = `/audio/sounds/${letter.toLowerCase()}.mp3`
+  if (await exists(url)) playUrl(url, () => speak(letter, 'en-US', 0.85))
+  else speak(letter, 'en-US', 0.85)
+}
+
 /** Natural voice for text that can't be pre-recorded (e.g. a learner's name). */
 export async function speakDynamic(
   text: string,

@@ -44,6 +44,7 @@ export function useVoice(lang = 'en-US') {
   const recRef = useRef<SpeechRecognitionLike | null>(null)
   const srTextRef = useRef('')
   const srResolveRef = useRef<((t: string) => void) | null>(null)
+  const srEndedRef = useRef(false)
 
   const mediaRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -103,6 +104,7 @@ export function useVoice(lang = 'en-US') {
   const start = useCallback(async () => {
     setError(null)
     srTextRef.current = ''
+    srEndedRef.current = false
     let stream: MediaStream
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -136,6 +138,7 @@ export function useVoice(lang = 'en-US') {
       }
       rec.onerror = () => {}
       rec.onend = () => {
+        srEndedRef.current = true
         const r = srResolveRef.current
         srResolveRef.current = null
         r?.(srTextRef.current.trim())
@@ -153,6 +156,7 @@ export function useVoice(lang = 'en-US') {
 
   const stop = useCallback(async (): Promise<string> => {
     setTranscribing(true)
+    setRecording(false)
     stopAnalyser()
 
     // 1) fast path: browser speech recognition
@@ -160,14 +164,31 @@ export function useVoice(lang = 'en-US') {
     if (recRef.current) {
       const rec = recRef.current
       recRef.current = null
-      srText = await new Promise<string>((resolve) => {
-        srResolveRef.current = resolve
-        try {
-          rec.stop()
-        } catch {
-          resolve(srTextRef.current.trim())
-        }
-      })
+      if (srEndedRef.current) {
+        // SR already auto-stopped (e.g. on silence) — use what we captured.
+        srText = srTextRef.current.trim()
+      } else {
+        srText = await new Promise<string>((resolve) => {
+          let settled = false
+          const finish = (t: string) => {
+            if (settled) return
+            settled = true
+            resolve(t)
+          }
+          srResolveRef.current = finish
+          // guard: never hang if `onend` doesn't fire
+          const timer = setTimeout(() => {
+            srResolveRef.current = null
+            finish(srTextRef.current.trim())
+          }, 2500)
+          try {
+            rec.stop()
+          } catch {
+            clearTimeout(timer)
+            finish(srTextRef.current.trim())
+          }
+        })
+      }
     }
 
     // 2) stop the recorder

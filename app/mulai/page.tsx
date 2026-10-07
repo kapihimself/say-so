@@ -9,7 +9,7 @@ import { ALPHABET } from '@/lib/phonics/alphabet'
 import { ARTIC } from '@/lib/phonics/articulation'
 import { MouthDiagram } from '@/components/phonics/MouthDiagram'
 import { speak } from '@/lib/tts'
-import { playNarration, playLetter, speakDynamic } from '@/lib/audio/clips'
+import { playNarration, playLetter, playSound, speakDynamic } from '@/lib/audio/clips'
 import { useVoice } from '@/lib/hooks/useVoice'
 import { scorePronunciation, wordToPhonemes, phonemesToString } from '@/lib/phonetics/g2p'
 import {
@@ -163,13 +163,24 @@ export default function MulaiPage() {
                             {ARTIC[l.artic].desc[nativeLang]}
                           </p>
                         </div>
-                        <button
-                          onClick={() => speak(l.example, 'en-US', 0.85)}
-                          aria-label={`${t.tutSayWord} ${l.example}`}
-                          className="doodle-btn grid size-10 shrink-0 place-items-center bg-white"
-                        >
-                          <Volume2 className="size-4" aria-hidden />
-                        </button>
+                        <div className="flex shrink-0 flex-col gap-1">
+                          <button
+                            onClick={() => void playLetter(l.letter)}
+                            title={`${l.letter} ${l.ipa}`}
+                            aria-label={`letter name ${l.letter}`}
+                            className="doodle-btn flex items-center gap-1 bg-white px-2 py-1 text-[10px] font-black"
+                          >
+                            <Volume2 className="size-3" aria-hidden /> {l.letter}
+                          </button>
+                          <button
+                            onClick={() => void playSound(l.letter)}
+                            title={`bunyi ${l.phoneme} — ${l.example}`}
+                            aria-label={`letter sound ${l.phoneme}`}
+                            className="doodle-btn flex items-center gap-1 bg-[var(--color-lemon)] px-2 py-1 text-[10px] font-black"
+                          >
+                            <Volume2 className="size-3" aria-hidden /> {l.phoneme}
+                          </button>
+                        </div>
                       </>
                     )
                   })()}

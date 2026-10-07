@@ -88,6 +88,15 @@ const LETTERS = {
   x: 'ex', y: 'why', z: 'zee',
 }
 
+// The phonics SOUND each letter makes, then its example word.
+const SOUNDS = {
+  a: 'ah, apple', b: 'buh, ball', c: 'kuh, cat', d: 'duh, dog', e: 'eh, egg',
+  f: 'fff, fish', g: 'guh, goat', h: 'huh, hat', i: 'ih, ink', j: 'juh, jam',
+  k: 'kuh, kite', l: 'lll, leg', m: 'mmm, man', n: 'nnn, nose', o: 'aw, orange',
+  p: 'puh, pen', q: 'kwuh, queen', r: 'rrr, red', s: 'sss, sun', t: 'tuh, tea',
+  u: 'uh, up', v: 'vvv, van', w: 'wuh, wet', x: 'ks, box', y: 'yuh, yes', z: 'zzz, zoo',
+}
+
 async function exists(p) {
   try {
     await access(p)
@@ -125,6 +134,10 @@ for (const [lang, cfg] of Object.entries(NARRATION)) {
 
 for (const [key, text] of Object.entries(LETTERS)) {
   await tts(text, 'nova', join(root, 'public', 'audio', 'letters', `${key}.mp3`), 'Say the English letter name clearly and cheerfully, once.')
+}
+
+for (const [key, text] of Object.entries(SOUNDS)) {
+  await tts(text, 'nova', join(root, 'public', 'audio', 'sounds', `${key}.mp3`), 'Say the letter sound clearly and briefly, then the word. Like a phonics teacher: "buh, ball".')
 }
 
 console.log('done')
