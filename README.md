@@ -17,6 +17,16 @@ language keeps getting wrong.
 [![Supabase](https://img.shields.io/badge/Supabase-auth%20%2B%20data-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com)
 [![Tests](https://img.shields.io/badge/tests-vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
 
+### 🔴 Live demo · [say-so-five.vercel.app](https://say-so-five.vercel.app)
+
+**Try GPT Live** — open the classroom, hit the green **GPT Live** button, allow the mic, and just talk. The teacher responds in real time, out loud, with corrections tuned to your first language (Bahasa Indonesia, Español, or Português).
+
+| | |
+|---|---|
+| **Live app** | [say-so-five.vercel.app](https://say-so-five.vercel.app) |
+| **Product tour** | [say-so-five.vercel.app/gallery](https://say-so-five.vercel.app/gallery) |
+| **Pitch deck** | [`pitch/index.html`](./pitch/index.html) (open in a browser) |
+
 [Quick start](#-quick-start) · [Features](#-features) · [How it works](#-how-it-works) · [Roadmap](#-roadmap)
 
 </div>
@@ -38,7 +48,7 @@ you back from pronunciation to grammar — tuned to the specific mistakes speake
 
 | | Feature | What it does |
 |---|---|---|
-| 🎙️ | **Talk, don't type** | Push-to-talk voice input (Whisper / `gpt-4o-mini-transcribe`) and natural TTS voice output. |
+| 🎙️ | **GPT Live — real-time voice** | Realtime speech-to-speech over WebRTC: talk out loud, the teacher hears and answers instantly. No record-stop-wait. |
 | 🧠 | **Spoonfed AI teacher** | Every lesson follows a guided loop — HOOK → EXPLAIN → SHOW → PRACTICE → CORRECT → REINFORCE → REWARD — graded to your CEFR level (A1 → C2). |
 | 🌍 | **Truly multilingual** | Onboarding, UI and narration in **Indonesian / Spanish / Portuguese**, each with its own interference coaching. |
 | 🔊 | **Phonics lab** | All 26 letter sounds with **animated articulation diagrams** — moving jaw, tongue, airflow and vocal-cord vibration. |
@@ -66,11 +76,17 @@ you back from pronunciation to grammar — tuned to the specific mistakes speake
      └─────────────────────── │  /api/tts  (teacher)   │
                               └──────────────────────┘
 
+   GPT LIVE (realtime): browser mic ──WebRTC SDP──▶ /api/live/session ──▶ OpenAI Realtime
+        mic audio and teacher voice travel peer-to-peer; transcripts arrive on the
+        `oai-events` data channel and flow into the classroom chat.
+
    progress ──▶ /api/progress ──▶ Supabase  `english` schema
 ```
 
 - **Teacher brain** lives in `app/api/chat/route.ts` — it injects the learner's name,
   CEFR level, native-language interference rules, and current unit into a teaching prompt.
+  The same prompt powers **GPT Live** (`app/api/live/session/route.ts`), which exchanges
+  the browser's WebRTC SDP offer for an OpenAI Realtime session — the key never leaves the server.
 - **Providers are swappable**: chat, STT and TTS each read a `*_BASE_URL` / `*_API_KEY`
   pair, so you can point them at OpenAI or any OpenAI-compatible endpoint.
 - **Progress** is written through `lib/supabase/admin.ts` into a dedicated `english`
@@ -150,10 +166,10 @@ supabase/migrations/                    # database schema
 - [ ] Roleplay simulations
 - [ ] Progression engine: streak, capstone, certificates
 
-## 🏆 Built for the hackathon
+## 🏆 Built for ForgeHacks Online 2026
 
-Say So is a working, tested prototype — 3D classroom, live voice loop, three languages,
-and real phonetics coaching. Demo it in a browser with a mic, no install.
+Say So is a working, tested prototype — realtime voice classroom (GPT Live), 3D room,
+three languages, real phonetics coaching. 24 unit tests green; deployed on Vercel.
 
 **Author** — Muhammad Kafi Rizki ([@kapihimself](https://github.com/kapihimself))
 
