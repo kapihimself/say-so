@@ -12,11 +12,12 @@ import { useAppStore, LEVELS, type TeacherLang } from '@/lib/store/appStore'
 import { getLocale } from '@/lib/i18n'
 import { CURRICULUM } from '@/lib/curriculum'
 import { useVoice } from '@/lib/hooks/useVoice'
-import { Mic, Send, Volume2, VolumeX, ArrowLeft, Loader2, Square, Headphones, ClipboardList, AudioLines } from 'lucide-react'
+import { Mic, Send, Volume2, VolumeX, ArrowLeft, Loader2, Square, Headphones, ClipboardList, AudioLines, Radio } from 'lucide-react'
 import { HudPanel } from '@/components/room/HudPanel'
 import { playNarration } from '@/lib/audio/clips'
 import { cn } from '@/lib/utils'
 import { PhoneticBoard } from '@/components/room/PhoneticBoard'
+import { useLive } from '@/lib/hooks/useLive'
 
 const ClassroomScene = dynamic(
   () => import('@/components/three/ClassroomScene').then((m) => m.ClassroomScene),
@@ -128,6 +129,17 @@ export default function RoomPage() {
   const locale = getLocale(nativeLang)
   const t = locale.ui
   const { recording, transcribing, start, stop } = useVoice()
+  const live = useLive({
+    onUserTranscript: (text) => {
+      setMessages((prev) => [...prev, { role: 'user', content: text }])
+    },
+    onAssistantTranscript: (text) => {
+      setMessages((prev) => {
+        if (prev[prev.length - 1]?.role === 'assistant' && prev[prev.length - 1].content === text) return prev
+        return [...prev, { role: 'assistant', content: text }]
+      })
+    },
+  })
 
   const [messages, setMessages] = useState<Msg[]>([])
   const [input, setInput] = useState('')
@@ -267,12 +279,28 @@ export default function RoomPage() {
   }
 
   async function handleMic() {
+    if (live.isLive) {
+      await live.stop()
+      return
+    }
     if (recording) {
       const text = await stop()
       if (text) submitText(text)
     } else {
       await start()
     }
+  }
+
+  async function startLive() {
+    await live.start({
+      studentName: name,
+      level,
+      unitTitle: unit?.unitTitle,
+      grammarFocus: unit?.grammarFocus,
+      vocab: unit?.vocab,
+      teacherLang,
+      nativeLang,
+    })
   }
 
   function cycleLang() {
@@ -283,7 +311,8 @@ export default function RoomPage() {
   if (!ready || !level || !unit) return null
   const lv = LEVELS[level]
   const visible = messages.filter((m) => !m.hidden)
-  const teacherTalking = streaming
+  const liveMode = live.isLive || live.status === 'connecting'
+  const teacherTalking = liveMode ? live.isLive : streaming
   const teacherText = [...visible].reverse().find((m) => m.role === 'assistant')?.content ?? ''
 
   return (
@@ -297,6 +326,21 @@ export default function RoomPage() {
           {t.roomClass} <span style={{ color: lv.color }}>{level}</span> · {unit.unitTitle}
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => (live.isLive ? void live.stop() : void startLive())}
+            disabled={live.status === 'connecting'}
+            className={cn(
+              'doodle-btn inline-flex items-center gap-1.5 px-3 py-2 text-sm',
+              live.isLive ? 'bg-[var(--color-mint)] text-white' : 'bg-white',
+              live.status === 'connecting' && 'opacity-60'
+            )}
+            title="GPT Live — real-time voice"
+            aria-pressed={live.isLive}
+            aria-label="GPT Live real-time voice"
+          >
+            {live.status === 'connecting' ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Radio className="size-4" aria-hidden />}
+            GPT Live
+          </button>
           <button
             onClick={() => void playNarration(locale.code, 'room_how', t.narRoom)}
             className="doodle-btn inline-flex items-center bg-white px-3 py-2"
@@ -441,17 +485,27 @@ export default function RoomPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleMic}
-                  disabled={transcribing || streaming}
+                  disabled={transcribing || streaming || live.status === 'connecting'}
                   className={cn(
                     'doodle-btn grid size-12 shrink-0 place-items-center',
-                    recording ? 'bg-[var(--color-bubblegum)] text-white' : 'bg-[var(--color-mint)]',
-                    (transcribing || streaming) && 'opacity-50'
+                    liveMode ? 'bg-[var(--color-grape)] text-white' : recording ? 'bg-[var(--color-bubblegum)] text-white' : 'bg-[var(--color-mint)]',
+                    (transcribing || streaming || live.status === 'connecting') && 'opacity-50'
                   )}
-                  title={t.roomMicTitle}
-                  aria-label={t.roomMicTitle}
-                  aria-pressed={recording}
+                  title={live.isLive ? 'End GPT Live session' : t.roomMicTitle}
+                  aria-label={live.isLive ? 'End GPT Live session' : t.roomMicTitle}
+                  aria-pressed={recording || liveMode}
                 >
-                  {transcribing ? <Loader2 className="size-5 animate-spin" aria-hidden /> : recording ? <Square className="size-5 fill-current" aria-hidden /> : <Mic className="size-5" aria-hidden />}
+                  {live.status === 'connecting' ? (
+                    <Loader2 className="size-5 animate-spin" aria-hidden />
+                  ) : live.isLive ? (
+                    <Radio className="size-5" aria-hidden />
+                  ) : transcribing ? (
+                    <Loader2 className="size-5 animate-spin" aria-hidden />
+                  ) : recording ? (
+                    <Square className="size-5 fill-current" aria-hidden />
+                  ) : (
+                    <Mic className="size-5" aria-hidden />
+                  )}
                 </button>
                 <input
                   value={input}
@@ -470,7 +524,14 @@ export default function RoomPage() {
                   <Send className="size-5" aria-hidden />
                 </button>
               </div>
-              {recording && (
+              {liveMode && (
+              <div className="mt-3 flex flex-col items-center gap-1.5">
+                <p className="text-center text-xs font-bold text-[var(--color-grape)]">
+                  GPT Live aktif — ngomong aja, guru denger langsung.
+                </p>
+              </div>
+            )}
+            {recording && (
                 <div className="mt-3 flex flex-col items-center gap-1.5">
                   <div className="flex items-center gap-0.5 h-6">
                     {[...Array(9)].map((_, i) => (

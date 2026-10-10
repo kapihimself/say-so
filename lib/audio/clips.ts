@@ -3,12 +3,15 @@
 import { speak, stopSpeaking } from '@/lib/tts'
 
 /**
- * Playback for pre-recorded OpenAI-TTS clips, with a browser-TTS fallback if a
- * clip is missing (e.g. before `npm run gen:tts` has been run).
+ * Playback for pre-recorded OpenAI-TTS clips, with a server-TTS fallback
+ * (gpt-4o-mini-tts via /api/tts) and the browser voice only as a last resort
+ * if the network call fails.
  */
 
 const existsCache = new Map<string, boolean>()
 let current: HTMLAudioElement | null = null
+
+const VOICE_BY_LANG: Record<string, string> = { id: 'coral', es: 'nova', pt: 'shimmer' }
 
 async function exists(url: string): Promise<boolean> {
   const hit = existsCache.get(url)
@@ -35,28 +38,64 @@ function playUrl(url: string, onFail: () => void) {
   a.play().catch(onFail)
 }
 
-/** Play a narration clip by key; fall back to browser TTS. */
+/** Natural server TTS — used whenever a pre-recorded clip is missing. */
+async function speakServer(text: string, langCode: string): Promise<boolean> {
+  try {
+    const r = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        voice: VOICE_BY_LANG[langCode] ?? 'alloy',
+        instructions:
+          'Speak warmly, slowly and clearly, like a kind language teacher encouraging a nervous beginner. Match the language of the text.',
+      }),
+    })
+    if (!r.ok) return false
+    const blob = await r.blob()
+    const url = URL.createObjectURL(blob)
+    playUrl(url, () => speak(text, langCode, 0.98))
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Play a narration clip by key; fall back to server TTS, then browser voice. */
 export async function playNarration(langCode: string, key: string, fallbackText: string, rate = 0.98): Promise<void> {
   if (typeof window === 'undefined') return
   const url = `/audio/narration/${langCode}/${key}.mp3`
-  if (await exists(url)) playUrl(url, () => speak(fallbackText, langCode, rate))
-  else speak(fallbackText, langCode, rate)
+  if (await exists(url)) {
+    playUrl(url, () => void speakServer(fallbackText, langCode))
+    return
+  }
+  if (await speakServer(fallbackText, langCode)) return
+  speak(fallbackText, langCode, rate)
 }
 
-/** Play the pre-recorded English letter name (a–z); fall back to browser TTS. */
+/** Play the pre-recorded English letter name (a–z); fall back to server TTS. */
 export async function playLetter(letter: string): Promise<void> {
   if (typeof window === 'undefined') return
   const url = `/audio/letters/${letter.toLowerCase()}.mp3`
-  if (await exists(url)) playUrl(url, () => speak(letter, 'en-US', 0.85))
-  else speak(letter, 'en-US', 0.85)
+  if (await exists(url)) {
+    playUrl(url, () => speak(letter, 'en-US', 0.85))
+    return
+  }
+  if (await speakServer(letter, 'id')) return
+  speak(letter, 'en-US', 0.85)
 }
 
 /** Play the phonics SOUND of a letter (e.g. "buh, ball"); fall back to TTS. */
 export async function playSound(letter: string): Promise<void> {
   if (typeof window === 'undefined') return
   const url = `/audio/sounds/${letter.toLowerCase()}.mp3`
-  if (await exists(url)) playUrl(url, () => speak(letter, 'en-US', 0.85))
-  else speak(letter, 'en-US', 0.85)
+  if (await exists(url)) {
+    playUrl(url, () => speak(letter, 'en-US', 0.85))
+    return
+  }
+  if (await speakServer(letter, 'id')) return
+  speak(letter, 'en-US', 0.85)
 }
 
 /** Natural voice for text that can't be pre-recorded (e.g. a learner's name). */

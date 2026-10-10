@@ -32,6 +32,27 @@ export type PhoneticPack = {
 }
 
 export type UIStrings = {
+  /* Mobbin-flow onboarding additions */
+  obWhyTitle?: string
+  obWhySub?: string
+  obWhyWork?: string
+  obWhyTravel?: string
+  obWhySchool?: string
+  obWhyFun?: string
+  obMirrorTitle?: string
+  obMirrorSub?: string
+  obMirrorBadge?: string
+  obMirrorBody?: string
+  obMirrorCta?: string
+  obPlanTitle?: string
+  obPlanSub?: string
+  obPlanFocus?: string
+  obPlanHabit?: string
+  obPlanResult?: string
+  obPlanStart?: string
+  obMinutesDay?: string
+  obWhyQuestion?: string
+
   // splash
   splashBadge: string
   splashSubtitle: string

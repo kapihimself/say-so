@@ -1,98 +1,111 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Buddy, type BuddyLook } from '@/components/character/Buddy'
 import { useAppStore } from '@/lib/store/appStore'
 import { getLocale } from '@/lib/i18n'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Images, Sparkles } from 'lucide-react'
 
-const FLOATERS: { look: BuddyLook; top: string; left: string; size: number; delay: number }[] = [
-  { look: { skin: '#E8B88A', hair: '#7BC8A4', hairStyle: 'puff', outfit: '#7BB8E8', cheeks: '#F4A8C0' }, top: '12%', left: '8%', size: 110, delay: 0 },
-  { look: { skin: '#F1C9A5', hair: '#F4A8C0', hairStyle: 'bun', outfit: '#C8B0E8', cheeks: '#F4A8C0' }, top: '60%', left: '4%', size: 130, delay: 0.6 },
-  { look: { skin: '#B07D56', hair: '#9FB0F0', hairStyle: 'swoop', outfit: '#F4C06A' }, top: '16%', left: '82%', size: 120, delay: 1.1 },
-  { look: { skin: '#8C5A3C', hair: '#C8B0E8', hairStyle: 'curly', outfit: '#9BD89B', cheeks: '#E89B9B' }, top: '64%', left: '80%', size: 140, delay: 0.3 },
-]
+const HeroCast = dynamic(
+  () => import('@/components/hero/HeroCast').then((m) => m.HeroCast),
+  { ssr: false }
+)
 
 export default function SplashPage() {
   const { nativeLang } = useAppStore()
   const t = getLocale(nativeLang).ui
+
   return (
-    <main className="relative h-dvh overflow-hidden">
-      {/* pastel blobs */}
-      <div className="pointer-events-none absolute -left-20 -top-20 h-80 w-80 rounded-full bg-[var(--color-bubblegum-soft)] blur-2xl" />
-      <div className="pointer-events-none absolute -right-24 top-32 h-96 w-96 rounded-full bg-[var(--color-sky-soft)] blur-2xl" />
-      <div className="pointer-events-none absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-[var(--color-lemon-soft)] blur-2xl" />
+    <main className="relative h-dvh overflow-hidden bg-[#e9e5dc]">
+      {/* studio backdrop — soft top light fading down */}
+      <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_-10%,#f6f3ec_0%,#e9e5dc_55%,#dcd7cb_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 [background:linear-gradient(to_top,rgba(43,34,56,0.10),transparent)]" />
 
-      {/* floating buddies (hidden on small screens) */}
-      {FLOATERS.map((f, i) => (
-        <div
-          key={i}
-          className="pointer-events-none absolute hidden md:block animate-float"
-          style={{ top: f.top, left: f.left, width: f.size, height: f.size, animationDelay: `${f.delay}s` }}
-        >
-          <Buddy look={f.look} />
-        </div>
-      ))}
-
-      <section className="relative z-10 mx-auto flex h-full max-w-3xl flex-col items-center justify-center px-6 text-center">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', bounce: 0.5, duration: 0.8 }}
-          className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 doodle-outline doodle-shadow-sm text-sm font-extrabold"
-        >
-          <Sparkles className="size-4 text-[var(--color-grape)]" />
-          {t.splashBadge}
-        </motion.div>
-
-        <motion.h1
-          initial={{ y: 24, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, type: 'spring', bounce: 0.4 }}
-          className="text-5xl font-black leading-[1.05] tracking-tight sm:text-7xl"
-        >
-          Say So
-          <br />
-          <span className="text-[var(--color-grape)] text-4xl sm:text-5xl">(Speak out loud)</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ y: 16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mt-2 text-sm font-bold uppercase tracking-widest text-[var(--color-bubblegum)]"
-        >
-          {t.splashSubtitle}
-        </motion.p>
-
-        <motion.p
-          initial={{ y: 16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.25 }}
-          className="mt-6 max-w-xl text-lg font-semibold text-[var(--color-muted-warm)]"
-        >
-          {t.splashBody}
-        </motion.p>
-
-        <motion.div
-          initial={{ y: 16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-10"
-        >
-          <Link
-            href="/onboarding"
-            className="doodle-btn inline-flex items-center gap-2 bg-[var(--color-grape)] px-8 py-4 text-lg text-white"
+      <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-center gap-7 px-6 py-6 lg:grid lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12">
+        {/* ---- Copy ---- */}
+        <section className="flex flex-col items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="clay-btn-soft inline-flex items-center gap-2 px-4 py-2 text-xs"
           >
-            {t.splashCta}
-            <ArrowRight className="size-5" />
-          </Link>
-          <p className="mt-4 text-sm font-semibold text-[var(--color-muted-warm)]">
+            <Sparkles className="size-3.5 text-[var(--color-grape)]" aria-hidden />
+            {t.splashBadge}
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08, duration: 0.45 }}
+            className="mt-5 text-[clamp(3rem,9vw,5.5rem)] font-black leading-[0.92] tracking-tight"
+          >
+            Say So
+            <span className="mt-1 block text-[clamp(1.3rem,3.4vw,2.1rem)] text-[var(--color-grape)]">(Speak out loud)</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.16 }}
+            className="mt-4 text-[11px] font-black uppercase tracking-[0.22em] text-[var(--color-muted-warm)]"
+          >
+            {t.splashSubtitle}
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.4 }}
+            className="mt-4 max-w-md text-base font-semibold leading-relaxed text-[var(--color-warm-text)] sm:text-lg"
+          >
+            {t.splashBody}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="mt-7 flex flex-wrap items-center gap-3"
+          >
+            <Link href="/onboarding" className="clay-btn inline-flex items-center gap-2 px-8 py-4 text-lg">
+              {t.splashCta}
+              <ArrowRight className="size-5" aria-hidden />
+            </Link>
+            <Link href="/gallery" className="clay-btn-soft inline-flex items-center gap-2 px-5 py-4 text-sm">
+              <Images className="size-4 text-[var(--color-grape)]" aria-hidden />
+              Product tour
+            </Link>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.38 }}
+            className="mt-5 text-sm font-bold text-[var(--color-muted-warm)]"
+          >
             {t.splashNote}
-          </p>
-        </motion.div>
-      </section>
+          </motion.p>
+        </section>
+
+        {/* ---- Yellow poster panel + animated cast ---- */}
+        <motion.section
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.5 }}
+          className="relative h-[42vh] min-h-[260px] w-full lg:h-[68vh] lg:max-h-[620px]"
+        >
+          <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] bg-[#f4ca51] clay-shadow-lg">
+            <div className="pointer-events-none absolute inset-x-0 top-[16%] h-[38%] bg-[#e7b93e]/60" />
+            <HeroCast />
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between border-t-[3px] border-[var(--color-ink)] bg-[#f4ca51] px-5 py-3">
+              <span className="text-sm font-black uppercase tracking-widest text-[var(--color-ink)]">GPT Live · realtime voice</span>
+              <span className="text-sm font-black text-[var(--color-ink)]">🇮🇩 🇪🇸 🇧🇷</span>
+            </div>
+          </div>
+        </motion.section>
+      </div>
     </main>
   )
 }
