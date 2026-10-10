@@ -10,7 +10,7 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
-  title: 'BISING (Bisa English) 🦕 — Belajar Inggris Bareng Guru AI',
+  title: 'Say So — Belajar Bahasa Inggris Bareng Guru AI',
   description:
     'Platform belajar bahasa Inggris virtual dengan guru AI bilingual. Ngobrol, dikoreksi pelan-pelan, dari B1 sampai C2. Lu bisa, kok.',
 }

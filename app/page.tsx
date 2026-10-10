@@ -52,9 +52,9 @@ export default function SplashPage() {
           transition={{ delay: 0.1, type: 'spring', bounce: 0.4 }}
           className="text-5xl font-black leading-[1.05] tracking-tight sm:text-7xl"
         >
-          BISING
+          Say So
           <br />
-          <span className="text-[var(--color-grape)] text-4xl sm:text-5xl">(Bisa English)</span>
+          <span className="text-[var(--color-grape)] text-4xl sm:text-5xl">(Speak out loud)</span>
         </motion.h1>
 
         <motion.p

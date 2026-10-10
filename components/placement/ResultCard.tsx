@@ -85,9 +85,9 @@ export function ResultCard({ outcome }: { outcome: PlacementOutcome }) {
 
     ctx.fillStyle = '#fffdf7'
     ctx.font = `900 74px ${FONT}`
-    ctx.fillText('BISING', 100, 170)
+    ctx.fillText('Say So', 100, 170)
     ctx.font = `800 34px ${FONT}`
-    ctx.fillText('Bisa English · English tutor', 100, 224)
+    ctx.fillText('Say So · English tutor', 100, 224)
     ctx.font = `800 30px ${FONT}`
     ctx.fillText('CEFR Placement', 100, 280)
 
@@ -157,7 +157,7 @@ export function ResultCard({ outcome }: { outcome: PlacementOutcome }) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `bising-cefr-${outcome.level}.png`
+    a.download = `say-so-cefr-${outcome.level}.png`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -165,7 +165,7 @@ export function ResultCard({ outcome }: { outcome: PlacementOutcome }) {
   async function share() {
     const blob = await toBlob()
     if (!blob) return
-    const file = new File([blob], `bising-cefr-${outcome.level}.png`, { type: 'image/png' })
+    const file = new File([blob], `say-so-cefr-${outcome.level}.png`, { type: 'image/png' })
     const nav = navigator as Navigator & { canShare?: (d: unknown) => boolean }
     if (nav.canShare?.({ files: [file] }) && navigator.share) {
       try {
